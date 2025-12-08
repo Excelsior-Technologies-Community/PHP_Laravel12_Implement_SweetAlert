@@ -1,59 +1,289 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🚀 Laravel 12 CRUD with SweetAlert2 
+
 
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <img src="https://img.shields.io/badge/Laravel-12.x-f72c1f?style=for-the-badge&logo=laravel" />
+  <img src="https://img.shields.io/badge/PHP-8.2-blue?style=for-the-badge&logo=php" />
+  <img src="https://img.shields.io/badge/SweetAlert2-Alerts-green?style=for-the-badge" />
 </p>
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 📌 Overview  
+This project is a **Laravel 12 CRUD Application** with **SweetAlert2** for Success Alerts and Delete Confirmations.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## ⭐ Features
+- SweetAlert2 Success Message  
+- SweetAlert2 Delete Confirmation  
+- Full CRUD for Posts  
+- Laravel 12 + Blade UI  
+- Clean Layout System  
+- Bootstrap UI  
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## 📁 Folder Structure  
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```
+app/
+│── Http/
+│   └── Controllers/
+│       ├── Controller.php
+│       └── PostController.php
+│
+├── Models/
+│   ├── Post.php
+│   └── User.php
+│
+resources/
+└── views/
+    ├── layouts/
+    │   └── app.blade.php
+    ├── posts/
+    │   ├── index.blade.php
+    │   ├── create.blade.php
+    │   └── edit.blade.php
+    └── welcome.blade.php
 
-## Laravel Sponsors
+routes/
+├── web.php
+└── console.php
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+database/
+└── migrations/
+    └── create_posts_table.php
+```
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## ✅ Step 1 — Install Laravel 12
 
-## Contributing
+```bash
+composer create-project laravel/laravel sweetalert "12.*"
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## ✅ Step 2 — Database Configuration
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Update `.env`:
 
-## Security Vulnerabilities
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=sweetalert
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+## ✅ Step 3 — Create Migration
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+php artisan make:migration create_posts_table --create=posts
+```
+
+Migration:
+
+```php
+Schema::create('posts', function (Blueprint $table) {
+    $table->id();
+    $table->string('title');
+    $table->text('content')->nullable();
+    $table->timestamps();
+});
+```
+
+Run migration:
+
+```bash
+php artisan migrate
+```
+
+---
+
+## ✅ Step 4 — Create Model
+
+```bash
+php artisan make:model Post
+```
+
+### 📄 `app/Models/Post.php`
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Post extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'title',
+        'content',
+    ];
+}
+```
+
+---
+
+## ✅ Step 5 — Create Controller
+
+```bash
+php artisan make:controller PostController
+```
+
+Key methods:
+
+```php
+public function index() {
+    $posts = Post::all();
+    return view('posts.index', compact('posts'));
+}
+
+public function create() {
+    return view('posts.create');
+}
+
+public function store(Request $request) {
+    $request->validate(['title' => 'required']);
+    Post::create($request->all());
+    return redirect()->route('posts.index')->with('success','Post Added Successfully');
+}
+
+public function edit($id) {
+    $post = Post::findOrFail($id);
+    return view('posts.edit', compact('post'));
+}
+
+public function update(Request $request, $id) {
+    $post = Post::findOrFail($id);
+    $post->update($request->all());
+    return redirect()->route('posts.index')->with('success','Post Updated Successfully');
+}
+
+public function destroy($id) {
+    $post = Post::findOrFail($id);
+    $post->delete();
+    return redirect()->route('posts.index')->with('success','Post Deleted Successfully');
+}
+```
+
+---
+
+## ✅ Step 6 — Add Routes
+
+```php
+Route::get('/posts', [PostController::class,'index'])->name('posts.index');
+Route::get('/posts/create', [PostController::class,'create'])->name('posts.create');
+Route::post('/posts/store', [PostController::class,'store'])->name('posts.store');
+
+Route::get('/posts/edit/{id}', [PostController::class,'edit'])->name('posts.edit');
+Route::post('/posts/update/{id}', [PostController::class,'update'])->name('posts.update');
+
+Route::delete('/posts/delete/{id}', [PostController::class,'destroy'])->name('posts.destroy');
+```
+
+---
+
+## 🧱 Step 7 — Layout File
+
+`resources/views/layouts/app.blade.php`
+
+Includes:
+
+- Bootstrap  
+- SweetAlert2  
+- `@yield('content')`  
+
+---
+
+## 🧰 Step 8 — Create Views
+
+### 📌 index.blade.php  
+List all posts + delete button with SweetAlert.
+
+### 📌 create.blade.php  
+Add new post form.
+
+### 📌 edit.blade.php  
+Edit post form.
+
+---
+
+## 🍬 SweetAlert Integration
+
+### ✔ Success Alert
+
+```blade
+@if(session('success'))
+<script>
+Swal.fire({
+    icon: 'success',
+    title: '{{ session("success") }}',
+    timer: 2000,
+    showConfirmButton: false
+})
+</script>
+@endif
+```
+
+---
+
+### ✔ Delete Confirmation
+
+```javascript
+function confirmDelete(event) {
+    event.preventDefault();
+    let form = event.target.form;
+
+    Swal.fire({
+        title: "Are you sure?",
+        text: "This action cannot be undone!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Delete"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.submit();
+        }
+    });
+}
+```
+
+---
+
+## ▶ Run Application
+
+```bash
+php artisan serve
+```
+
+Visit:
+
+```
+http://localhost:8000/posts
+```
+
+---
+
+## 🖼 Screenshots
+CREATE POST:-
+
+<img width="869" height="648" alt="image" src="https://github.com/user-attachments/assets/aeca28fd-f12b-4cfd-85cb-beb5bf991021" />
+
+
+DELETE POST:-
+
+<img width="975" height="468" alt="image" src="https://github.com/user-attachments/assets/cd599b76-8117-42ea-ae78-24e61b669e9f" />
+
