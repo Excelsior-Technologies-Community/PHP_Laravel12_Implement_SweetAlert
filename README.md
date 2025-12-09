@@ -1,4 +1,4 @@
-# 🚀 Laravel 12 CRUD with SweetAlert2 
+# PHP_Laravel12_Implement_SweetAlert
 
 
 <p align="center">
@@ -9,12 +9,12 @@
 
 ---
 
-## 📌 Overview  
+##  Overview  
 This project is a **Laravel 12 CRUD Application** with **SweetAlert2** for Success Alerts and Delete Confirmations.
 
 ---
 
-## ⭐ Features
+##  Features
 - SweetAlert2 Success Message  
 - SweetAlert2 Delete Confirmation  
 - Full CRUD for Posts  
@@ -24,7 +24,7 @@ This project is a **Laravel 12 CRUD Application** with **SweetAlert2** for Succe
 
 ---
 
-## 📁 Folder Structure  
+##  Folder Structure  
 
 ```
 app/
@@ -58,7 +58,7 @@ database/
 
 ---
 
-## ✅ Step 1 — Install Laravel 12
+##  Step 1 — Install Laravel 12
 
 ```bash
 composer create-project laravel/laravel sweetalert "12.*"
@@ -66,7 +66,7 @@ composer create-project laravel/laravel sweetalert "12.*"
 
 ---
 
-## ✅ Step 2 — Database Configuration
+##  Step 2 — Database Configuration
 
 Update `.env`:
 
@@ -81,7 +81,7 @@ DB_PASSWORD=
 
 ---
 
-## ✅ Step 3 — Create Migration
+##  Step 3 — Create Migration
 
 ```bash
 php artisan make:migration create_posts_table --create=posts
@@ -106,13 +106,13 @@ php artisan migrate
 
 ---
 
-## ✅ Step 4 — Create Model
+##  Step 4 — Create Model
 
 ```bash
 php artisan make:model Post
 ```
 
-### 📄 `app/Models/Post.php`
+###  `app/Models/Post.php`
 
 ```php
 <?php
@@ -135,7 +135,7 @@ class Post extends Model
 
 ---
 
-## ✅ Step 5 — Create Controller
+##  Step 5 — Create Controller
 
 ```bash
 php artisan make:controller PostController
@@ -179,7 +179,7 @@ public function destroy($id) {
 
 ---
 
-## ✅ Step 6 — Add Routes
+##  Step 6 — Add Routes
 
 ```php
 Route::get('/posts', [PostController::class,'index'])->name('posts.index');
@@ -194,7 +194,7 @@ Route::delete('/posts/delete/{id}', [PostController::class,'destroy'])->name('po
 
 ---
 
-## 🧱 Step 7 — Layout File
+##  Step 7 — Layout File
 
 `resources/views/layouts/app.blade.php`
 
@@ -206,22 +206,22 @@ Includes:
 
 ---
 
-## 🧰 Step 8 — Create Views
+##  Step 8 — Create Views
 
-### 📌 index.blade.php  
+###  index.blade.php  
 List all posts + delete button with SweetAlert.
 
-### 📌 create.blade.php  
+###  create.blade.php  
 Add new post form.
 
-### 📌 edit.blade.php  
+###  edit.blade.php  
 Edit post form.
 
 ---
 
-## 🍬 SweetAlert Integration
+##  SweetAlert Integration
 
-### ✔ Success Alert
+###  Success Alert
 
 ```blade
 @if(session('success'))
@@ -238,7 +238,7 @@ Swal.fire({
 
 ---
 
-### ✔ Delete Confirmation
+###  Delete Confirmation
 
 ```javascript
 function confirmDelete(event) {
@@ -263,7 +263,7 @@ function confirmDelete(event) {
 
 ---
 
-## ▶ Run Application
+##  Run Application
 
 ```bash
 php artisan serve
@@ -277,7 +277,7 @@ http://localhost:8000/posts
 
 ---
 
-## 🖼 Screenshots
+##  Screenshots
 CREATE POST:-
 
 <img width="869" height="648" alt="image" src="https://github.com/user-attachments/assets/aeca28fd-f12b-4cfd-85cb-beb5bf991021" />
