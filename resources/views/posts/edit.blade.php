@@ -1,24 +1,81 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container py-4">
+<div class="container" style="max-width:600px;">
+    <h4 class="mb-3">Edit Post</h4>
 
-    <h2>Edit Post</h2>
+    <div class="card shadow-sm p-4">
+        <form action="{{ route('posts.update', $post->id) }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
 
-    <!-- Update Post Form -->
-    <form action="{{ route('posts.update', $post->id) }}" method="POST">
+            <div class="mb-3">
+                <label class="form-label">Title <span class="text-danger">*</span></label>
+                <input type="text" name="title" class="form-control @error('title') is-invalid @enderror"
+                       value="{{ old('title', $post->title) }}">
+                @error('title')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            </div>
 
-        @csrf
-        @method('PUT') <!-- Spoof PUT request method -->
+            <div class="mb-3">
+                <label class="form-label">Content</label>
+                <textarea name="content" rows="4"
+                          class="form-control @error('content') is-invalid @enderror">{{ old('content', $post->content) }}</textarea>
+                @error('content')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            </div>
 
-        <!-- Input field with old title value -->
-        <input type="text" name="title" class="form-control mb-3"
-               value="{{ $post->title }}">
+            <div class="mb-3">
+                <label class="form-label">Category</label>
+                <input type="text" name="category" list="cat-list"
+                       class="form-control @error('category') is-invalid @enderror"
+                       value="{{ old('category', $post->category) }}">
+                <datalist id="cat-list">
+                    @foreach($categories as $cat)
+                        <option value="{{ $cat }}">
+                    @endforeach
+                </datalist>
+                @error('category')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            </div>
 
-        <!-- Submit & Back Buttons -->
-        <button class="btn btn-primary">Update</button>
-        <a href="{{ route('posts.index') }}" class="btn btn-secondary">Back</a>
-    </form>
+            <div class="mb-3">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-select @error('status') is-invalid @enderror">
+                    <option value="published" {{ old('status', $post->status) === 'published' ? 'selected' : '' }}>Published</option>
+                    <option value="draft"     {{ old('status', $post->status) === 'draft'     ? 'selected' : '' }}>Draft</option>
+                </select>
+                @error('status')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            </div>
 
+            <div class="mb-3">
+                <label class="form-label">Image</label>
+                @if($post->image)
+                    <div class="mb-2">
+                        <img src="{{ asset('storage/'.$post->image) }}" id="img-preview"
+                             style="max-height:120px;" class="rounded">
+                    </div>
+                @else
+                    <img id="img-preview" src="#" class="mt-2 d-none rounded mb-2" style="max-height:120px;">
+                @endif
+                <input type="file" name="image" accept="image/*"
+                       class="form-control @error('image') is-invalid @enderror"
+                       onchange="previewImg(this)">
+                @error('image')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Update</button>
+                <a href="{{ route('posts.index') }}" class="btn btn-secondary">Back</a>
+            </div>
+        </form>
+    </div>
 </div>
+
+<script>
+function previewImg(input) {
+    const preview = document.getElementById('img-preview');
+    if (input.files && input.files[0]) {
+        preview.src = URL.createObjectURL(input.files[0]);
+        preview.classList.remove('d-none');
+    }
+}
+</script>
 @endsection
