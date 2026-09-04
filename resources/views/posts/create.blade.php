@@ -16,18 +16,15 @@
 
     </div>
 
-
     <div class="card shadow-sm p-4">
 
         <form
             action="{{ route('posts.store') }}"
             method="POST"
             enctype="multipart/form-data"
-            class="unsaved-changes-form"
-        >
+            class="unsaved-changes-form">
 
             @csrf
-
 
             <!-- Title -->
 
@@ -43,21 +40,20 @@
 
                 </label>
 
-
                 <input
                     type="text"
                     name="title"
                     class="form-control @error('title') is-invalid @enderror"
                     value="{{ old('title') }}"
                     placeholder="Enter title"
-                >
-
+                    maxlength="255"
+                    required>
 
                 @error('title')
 
-                    <div class="invalid-feedback">
-                        {{ $message }}
-                    </div>
+                <div class="invalid-feedback">
+                    {{ $message }}
+                </div>
 
                 @enderror
 
@@ -72,20 +68,17 @@
                     Content
                 </label>
 
-
                 <textarea
                     name="content"
                     rows="4"
                     class="form-control @error('content') is-invalid @enderror"
-                    placeholder="Enter content"
-                >{{ old('content') }}</textarea>
-
+                    placeholder="Enter content">{{ old('content') }}</textarea>
 
                 @error('content')
 
-                    <div class="invalid-feedback">
-                        {{ $message }}
-                    </div>
+                <div class="invalid-feedback">
+                    {{ $message }}
+                </div>
 
                 @enderror
 
@@ -100,7 +93,6 @@
                     Category
                 </label>
 
-
                 <input
                     type="text"
                     name="category"
@@ -108,25 +100,23 @@
                     class="form-control @error('category') is-invalid @enderror"
                     value="{{ old('category') }}"
                     placeholder="e.g. Tech, News"
-                >
-
+                    maxlength="100">
 
                 <datalist id="cat-list">
 
                     @foreach($categories as $cat)
 
-                        <option value="{{ $cat }}">
+                    <option value="{{ $cat }}">
 
-                    @endforeach
+                        @endforeach
 
                 </datalist>
 
-
                 @error('category')
 
-                    <div class="invalid-feedback">
-                        {{ $message }}
-                    </div>
+                <div class="invalid-feedback">
+                    {{ $message }}
+                </div>
 
                 @enderror
 
@@ -141,39 +131,33 @@
                     Status
                 </label>
 
-
                 <select
                     name="status"
-                    class="form-select @error('status') is-invalid @enderror"
-                >
+                    class="form-select @error('status') is-invalid @enderror">
 
                     <option
                         value="published"
                         {{ old('status', 'published') === 'published'
                             ? 'selected'
-                            : '' }}
-                    >
+                            : '' }}>
                         Published
                     </option>
-
 
                     <option
                         value="draft"
                         {{ old('status') === 'draft'
                             ? 'selected'
-                            : '' }}
-                    >
+                            : '' }}>
                         Draft
                     </option>
 
                 </select>
 
-
                 @error('status')
 
-                    <div class="invalid-feedback">
-                        {{ $message }}
-                    </div>
+                <div class="invalid-feedback">
+                    {{ $message }}
+                </div>
 
                 @enderror
 
@@ -188,31 +172,27 @@
                     Image
                 </label>
 
-
                 <input
                     type="file"
                     name="image"
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/webp"
                     class="form-control @error('image') is-invalid @enderror"
-                    onchange="previewImg(this)"
-                >
-
+                    onchange="previewImg(this)">
 
                 @error('image')
 
-                    <div class="invalid-feedback">
-                        {{ $message }}
-                    </div>
+                <div class="invalid-feedback">
+                    {{ $message }}
+                </div>
 
                 @enderror
-
 
                 <img
                     id="img-preview"
                     src="#"
                     class="mt-2 d-none rounded"
                     style="max-height:120px;"
-                >
+                    alt="Image Preview">
 
             </div>
 
@@ -223,16 +203,13 @@
 
                 <button
                     type="submit"
-                    class="btn btn-success"
-                >
+                    class="btn btn-success">
                     Save
                 </button>
 
-
                 <a
                     href="{{ route('posts.index') }}"
-                    class="btn btn-secondary"
-                >
+                    class="btn btn-secondary">
                     Back
                 </a>
 
@@ -246,37 +223,30 @@
 
 
 <script>
-
-/*
+    /*
 |--------------------------------------------------------------------------
 | Image Preview
 |--------------------------------------------------------------------------
 */
 
-function previewImg(input) {
+    function previewImg(input) {
 
-    const preview =
-        document.getElementById('img-preview');
+        const preview = document.getElementById('img-preview');
 
+        if (
+            input.files &&
+            input.files[0]
+        ) {
 
-    if (
-        input.files &&
-        input.files[0]
-    ) {
-
-        preview.src =
-            URL.createObjectURL(
+            preview.src = URL.createObjectURL(
                 input.files[0]
             );
 
-        preview.classList.remove(
-            'd-none'
-        );
+            preview.classList.remove('d-none');
+
+        }
 
     }
-
-}
-
 </script>
 
 @endsection

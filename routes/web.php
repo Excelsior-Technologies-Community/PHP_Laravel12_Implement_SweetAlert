@@ -3,29 +3,42 @@
 use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Route;
 
+
 /*
 |--------------------------------------------------------------------------
 | Post CRUD
 |--------------------------------------------------------------------------
 */
 
-Route::get('/posts', [PostController::class, 'index'])
-    ->name('posts.index');
+Route::get('/posts', [
+    PostController::class,
+    'index'
+])->name('posts.index');
 
-Route::get('/posts/create', [PostController::class, 'create'])
-    ->name('posts.create');
+Route::get('/posts/create', [
+    PostController::class,
+    'create'
+])->name('posts.create');
 
-Route::post('/posts/store', [PostController::class, 'store'])
-    ->name('posts.store');
+Route::post('/posts/store', [
+    PostController::class,
+    'store'
+])->name('posts.store');
 
-Route::get('/posts/edit/{id}', [PostController::class, 'edit'])
-    ->name('posts.edit');
+Route::get('/posts/edit/{id}', [
+    PostController::class,
+    'edit'
+])->name('posts.edit');
 
-Route::put('/posts/update/{id}', [PostController::class, 'update'])
-    ->name('posts.update');
+Route::put('/posts/update/{id}', [
+    PostController::class,
+    'update'
+])->name('posts.update');
 
-Route::post('/posts/delete/{id}', [PostController::class, 'destroy'])
-    ->name('posts.delete');
+Route::post('/posts/delete/{id}', [
+    PostController::class,
+    'destroy'
+])->name('posts.delete');
 
 
 /*
@@ -34,24 +47,37 @@ Route::post('/posts/delete/{id}', [PostController::class, 'destroy'])
 |--------------------------------------------------------------------------
 */
 
-Route::get('/posts/trash', [PostController::class, 'trash'])
-    ->name('posts.trash');
+Route::get('/posts/trash', [
+    PostController::class,
+    'trash'
+])->name('posts.trash');
 
-Route::post('/posts/restore/{id}', [PostController::class, 'restore'])
-    ->name('posts.restore');
+Route::post('/posts/restore/{id}', [
+    PostController::class,
+    'restore'
+])->name('posts.restore');
 
-Route::delete('/posts/force-delete/{id}', [PostController::class, 'forceDelete'])
-    ->name('posts.forceDelete');
+Route::post('/posts/restore-all', [
+    PostController::class,
+    'restoreAll'
+])->name('posts.restoreAll');
+
+Route::delete('/posts/force-delete/{id}', [
+    PostController::class,
+    'forceDelete'
+])->name('posts.forceDelete');
 
 
 /*
 |--------------------------------------------------------------------------
-| AJAX Status Toggle
+| AJAX Status
 |--------------------------------------------------------------------------
 */
 
-Route::post('/posts/toggle-status/{id}', [PostController::class, 'toggleStatus'])
-    ->name('posts.toggleStatus');
+Route::post('/posts/toggle-status/{id}', [
+    PostController::class,
+    'toggleStatus'
+])->name('posts.toggleStatus');
 
 
 /*
@@ -60,8 +86,22 @@ Route::post('/posts/toggle-status/{id}', [PostController::class, 'toggleStatus']
 |--------------------------------------------------------------------------
 */
 
-Route::post('/posts/bulk-delete', [PostController::class, 'bulkDelete'])
-    ->name('posts.bulkDelete');
+Route::post('/posts/bulk-delete', [
+    PostController::class,
+    'bulkDelete'
+])->name('posts.bulkDelete');
+
+
+/*
+|--------------------------------------------------------------------------
+| AJAX Bulk Status
+|--------------------------------------------------------------------------
+*/
+
+Route::post('/posts/bulk-status', [
+    PostController::class,
+    'bulkStatus'
+])->name('posts.bulkStatus');
 
 
 /*
@@ -70,8 +110,12 @@ Route::post('/posts/bulk-delete', [PostController::class, 'bulkDelete'])
 |--------------------------------------------------------------------------
 */
 
-Route::get('/posts/export/csv', [PostController::class, 'exportCsv'])
-    ->name('posts.exportCsv');
+Route::get('/posts/export/csv', [
+    PostController::class,
+    'exportCsv'
+])->name('posts.exportCsv');
 
-Route::get('/posts/export/pdf', [PostController::class, 'exportPdf'])
-    ->name('posts.exportPdf');
+Route::get('/posts/export/pdf', [
+    PostController::class,
+    'exportPdf'
+])->name('posts.exportPdf');

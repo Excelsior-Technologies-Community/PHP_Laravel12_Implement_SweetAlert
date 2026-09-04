@@ -2,10 +2,157 @@
 
 @section('content')
 
-<div class="container">
+<div class="container py-4">
 
-    <!-- SweetAlert Success -->
+    {{-- =========================================================
+         Custom Styling
+    ========================================================== --}}
+    <style>
+        .page-header {
+            background: linear-gradient(135deg, #0d6efd, #6610f2);
+            color: #fff;
+            border-radius: 18px;
+            padding: 25px 30px;
+            margin-bottom: 25px;
+        }
+
+        .page-header h2 {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-card {
+            border-radius: 15px;
+            transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08) !important;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .filter-card {
+            border: 0;
+            border-radius: 15px;
+        }
+
+        .table-card {
+            border: 0;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .table thead th {
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        .table tbody td {
+            vertical-align: middle;
+        }
+
+        .table tbody tr {
+            transition: background 0.15s ease;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .post-image {
+            width: 55px;
+            height: 55px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+        }
+
+        .status-toggle-btn {
+            cursor: pointer;
+            padding: 7px 12px;
+            border-radius: 20px;
+        }
+
+        .bulk-toolbar {
+            border-radius: 12px;
+        }
+
+        .pagination {
+            gap: 6px;
+        }
+
+        .pagination .page-item .page-link {
+            border-radius: 8px;
+            min-width: 40px;
+            text-align: center;
+            font-weight: 600;
+            border: 1px solid #dee2e6;
+            color: #495057;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+            color: #fff;
+        }
+
+        .pagination .page-item .page-link:hover {
+            background-color: #e9ecef;
+        }
+
+        .pagination .page-item.active .page-link:hover {
+            background-color: #0d6efd;
+            color: #fff;
+        }
+
+        .sort-link {
+            color: #fff !important;
+            text-decoration: none;
+        }
+
+        .sort-link:hover {
+            color: #e9ecef !important;
+        }
+    </style>
+
+
+    {{-- =========================================================
+         Header
+    ========================================================== --}}
+    <div class="page-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+
+        <div>
+            <h2>Posts Management</h2>
+            <div class="opacity-75">
+                Manage your posts, status and content
+            </div>
+        </div>
+
+        <a
+            href="{{ route('posts.create') }}"
+            class="btn btn-light fw-semibold px-4"
+        >
+            + Add Post
+        </a>
+
+    </div>
+
+
+    {{-- =========================================================
+         Success Message
+    ========================================================== --}}
     @if(session('success'))
+
         <script>
             document.addEventListener('DOMContentLoaded', function () {
 
@@ -16,135 +163,356 @@
 
             });
         </script>
+
     @endif
 
 
-    <!-- ========================================================= -->
-    <!-- Search & Filters -->
-    <!-- ========================================================= -->
+    {{-- =========================================================
+         Statistics
+    ========================================================== --}}
+    <div class="row g-3 mb-4">
 
-    <form
-        method="GET"
-        action="{{ route('posts.index') }}"
-        class="row g-2 mb-3 no-spinner"
-    >
+        {{-- Total --}}
+        <div class="col-sm-6 col-lg-3">
 
-        <div class="col-md-4">
+            <div class="card shadow-sm border-0 stat-card h-100">
 
-            <input
-                type="text"
-                name="search"
-                class="form-control"
-                placeholder="Search title or content..."
-                value="{{ request('search') }}"
-            >
+                <div class="card-body d-flex justify-content-between align-items-center">
+
+                    <div>
+                        <small class="text-muted">
+                            Total Posts
+                        </small>
+
+                        <h3 class="mb-0 fw-bold">
+                            {{ $totalPosts }}
+                        </h3>
+                    </div>
+
+                    <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                        📝
+                    </div>
+
+                </div>
+
+            </div>
 
         </div>
 
 
-        <div class="col-md-3">
+        {{-- Published --}}
+        <div class="col-sm-6 col-lg-3">
 
-            <select
-                name="category"
-                class="form-select"
+            <div class="card shadow-sm border-0 stat-card h-100">
+
+                <div class="card-body d-flex justify-content-between align-items-center">
+
+                    <div>
+                        <small class="text-muted">
+                            Published
+                        </small>
+
+                        <h3 class="mb-0 fw-bold text-success">
+                            {{ $publishedPosts }}
+                        </h3>
+                    </div>
+
+                    <div class="stat-icon bg-success bg-opacity-10 text-success">
+                        ✓
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- Draft --}}
+        <div class="col-sm-6 col-lg-3">
+
+            <div class="card shadow-sm border-0 stat-card h-100">
+
+                <div class="card-body d-flex justify-content-between align-items-center">
+
+                    <div>
+                        <small class="text-muted">
+                            Draft
+                        </small>
+
+                        <h3 class="mb-0 fw-bold text-secondary">
+                            {{ $draftPosts }}
+                        </h3>
+                    </div>
+
+                    <div class="stat-icon bg-secondary bg-opacity-10 text-secondary">
+                        ✎
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- Trash --}}
+        <div class="col-sm-6 col-lg-3">
+
+            <div class="card shadow-sm border-0 stat-card h-100">
+
+                <div class="card-body d-flex justify-content-between align-items-center">
+
+                    <div>
+                        <small class="text-muted">
+                            Trash
+                        </small>
+
+                        <h3 class="mb-0 fw-bold text-danger">
+                            {{ $trashPosts }}
+                        </h3>
+                    </div>
+
+                    <div class="stat-icon bg-danger bg-opacity-10 text-danger">
+                        🗑
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {{-- =========================================================
+         Search & Filters
+    ========================================================== --}}
+    <div class="card shadow-sm filter-card mb-3">
+
+        <div class="card-body">
+
+            <form
+                method="GET"
+                action="{{ route('posts.index') }}"
+                class="row g-2 no-spinner"
             >
 
-                <option value="">
-                    All Categories
-                </option>
+                {{-- Search --}}
+                <div class="col-lg-3 col-md-6">
 
-                @foreach($categories as $cat)
+                    <div class="input-group">
 
-                    <option
-                        value="{{ $cat }}"
-                        {{ request('category') == $cat ? 'selected' : '' }}
+                        <span class="input-group-text bg-white">
+                            🔍
+                        </span>
+
+                        <input
+                            type="text"
+                            name="search"
+                            class="form-control"
+                            placeholder="Search ID, title or content..."
+                            value="{{ request('search') }}"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                {{-- Category --}}
+                <div class="col-lg-2 col-md-6">
+
+                    <select
+                        name="category"
+                        class="form-select"
                     >
-                        {{ $cat }}
-                    </option>
+
+                        <option value="">
+                            All Categories
+                        </option>
+
+                        @foreach($categories as $cat)
+
+                            <option
+                                value="{{ $cat }}"
+                                {{ request('category') == $cat ? 'selected' : '' }}
+                            >
+                                {{ $cat }}
+                            </option>
+
+                        @endforeach
+
+                    </select>
+
+                </div>
+
+
+                {{-- Status --}}
+                <div class="col-lg-2 col-md-6">
+
+                    <select
+                        name="status"
+                        class="form-select"
+                    >
+
+                        <option value="">
+                            All Status
+                        </option>
+
+                        <option
+                            value="published"
+                            {{ request('status') == 'published' ? 'selected' : '' }}
+                        >
+                            Published
+                        </option>
+
+                        <option
+                            value="draft"
+                            {{ request('status') == 'draft' ? 'selected' : '' }}
+                        >
+                            Draft
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                {{-- From Date --}}
+                <div class="col-lg-2 col-md-6">
+
+                    <input
+                        type="date"
+                        name="from_date"
+                        class="form-control"
+                        value="{{ request('from_date') }}"
+                        title="From Date"
+                    >
+
+                </div>
+
+
+                {{-- To Date --}}
+                <div class="col-lg-2 col-md-6">
+
+                    <input
+                        type="date"
+                        name="to_date"
+                        class="form-control"
+                        value="{{ request('to_date') }}"
+                        title="To Date"
+                    >
+
+                </div>
+
+
+                {{-- Search Button --}}
+                <div class="col-lg-1 col-md-6">
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary w-100"
+                    >
+                        Search
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    {{-- =========================================================
+         Filter Controls
+    ========================================================== --}}
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+
+        <a
+            href="{{ route('posts.index') }}"
+            class="btn btn-outline-secondary btn-sm"
+        >
+            ↻ Reset Filters
+        </a>
+
+
+        <div class="d-flex align-items-center gap-2">
+
+            <span class="small text-muted">
+                Per Page
+            </span>
+
+            <form
+                method="GET"
+                action="{{ route('posts.index') }}"
+                class="no-spinner"
+            >
+
+                @foreach(request()->except('per_page', 'page') as $key => $value)
+
+                    <input
+                        type="hidden"
+                        name="{{ $key }}"
+                        value="{{ $value }}"
+                    >
 
                 @endforeach
 
-            </select>
-
-        </div>
-
-
-        <div class="col-md-2">
-
-            <select
-                name="status"
-                class="form-select"
-            >
-
-                <option value="">
-                    All Status
-                </option>
-
-                <option
-                    value="published"
-                    {{ request('status') == 'published' ? 'selected' : '' }}
+                <select
+                    name="per_page"
+                    class="form-select form-select-sm"
+                    onchange="this.form.submit()"
                 >
-                    Published
-                </option>
 
-                <option
-                    value="draft"
-                    {{ request('status') == 'draft' ? 'selected' : '' }}
-                >
-                    Draft
-                </option>
+                    @foreach([5, 10, 25, 50] as $number)
 
-            </select>
+                        <option
+                            value="{{ $number }}"
+                            {{ $perPage == $number ? 'selected' : '' }}
+                        >
+                            {{ $number }}
+                        </option>
 
-        </div>
+                    @endforeach
 
+                </select>
 
-        <div class="col-md-3 d-flex gap-2">
-
-            <button
-                type="submit"
-                class="btn btn-primary"
-            >
-                🔍 Search
-            </button>
-
-            <a
-                href="{{ route('posts.index') }}"
-                class="btn btn-secondary"
-            >
-                Reset
-            </a>
+            </form>
 
         </div>
 
-    </form>
+    </div>
 
 
-    <!-- ========================================================= -->
-    <!-- Top Bar -->
-    <!-- ========================================================= -->
-
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    {{-- =========================================================
+         Export Bar
+    ========================================================== --}}
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
 
         <div>
-
-            <a
-                href="{{ route('posts.create') }}"
-                class="btn btn-success"
-            >
-                + Add Post
-            </a>
-
+            <span class="text-muted small">
+                Showing
+                <strong>{{ $posts->firstItem() ?? 0 }}</strong>
+                -
+                <strong>{{ $posts->lastItem() ?? 0 }}</strong>
+                of
+                <strong>{{ $posts->total() }}</strong>
+                posts
+            </span>
         </div>
 
 
         <div class="d-flex gap-2">
 
             <a
-                href="{{ route('posts.exportCsv') }}"
+                href="{{ route('posts.exportCsv', request()->query()) }}"
                 class="btn btn-outline-success btn-sm"
             >
-                ⬇ CSV
+                ↓ Filtered CSV
             </a>
 
             <a
@@ -152,7 +520,7 @@
                 class="btn btn-outline-danger btn-sm"
                 target="_blank"
             >
-                ⬇ PDF
+                ↓ PDF
             </a>
 
         </div>
@@ -160,19 +528,21 @@
     </div>
 
 
-    <!-- ========================================================= -->
-    <!-- Bulk Action Toolbar -->
-    <!-- ========================================================= -->
-
+    {{-- =========================================================
+         Bulk Toolbar
+    ========================================================== --}}
     <div
         id="bulk-toolbar"
         class="bulk-toolbar alert alert-primary align-items-center justify-content-between mb-3"
+        style="display: none;"
     >
 
         <div>
 
             <strong>
-                <span id="selected-count">0</span>
+                <span id="selected-count">
+                    0
+                </span>
             </strong>
 
             post(s) selected.
@@ -180,19 +550,38 @@
         </div>
 
 
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 flex-wrap">
+
+            <button
+                type="button"
+                class="btn btn-success btn-sm"
+                onclick="bulkUpdateStatus('published')"
+            >
+                ✓ Publish
+            </button>
+
+
+            <button
+                type="button"
+                class="btn btn-secondary btn-sm"
+                onclick="bulkUpdateStatus('draft')"
+            >
+                Draft
+            </button>
+
 
             <button
                 type="button"
                 class="btn btn-danger btn-sm"
                 onclick="bulkDeletePosts()"
             >
-                🗑 Delete Selected
+                🗑 Delete
             </button>
+
 
             <button
                 type="button"
-                class="btn btn-secondary btn-sm"
+                class="btn btn-light btn-sm"
                 onclick="clearSelection()"
             >
                 Clear
@@ -203,11 +592,10 @@
     </div>
 
 
-    <!-- ========================================================= -->
-    <!-- Posts Table -->
-    <!-- ========================================================= -->
-
-    <div class="card shadow-sm">
+    {{-- =========================================================
+         Posts Table
+    ========================================================== --}}
+    <div class="card shadow-sm table-card">
 
         <div class="table-responsive">
 
@@ -217,27 +605,139 @@
 
                     <tr>
 
-                        <th width="45">
+                        {{-- Select --}}
+                        <th width="45" class="text-center">
 
                             <input
                                 type="checkbox"
                                 id="select-all"
                                 class="form-check-input"
-                                title="Select all"
                                 onchange="toggleSelectAll(this)"
                             >
 
                         </th>
 
-                        <th>#</th>
 
-                        <th>Image</th>
+                        {{-- ID --}}
+                        <th>
 
-                        <th>Title</th>
+                            <a
+                                href="{{ request()->fullUrlWithQuery([
+                                    'sort' => 'id',
+                                    'direction' => ($sort === 'id' && $direction === 'asc') ? 'desc' : 'asc',
+                                    'page' => 1
+                                ]) }}"
+                                class="sort-link"
+                            >
 
-                        <th>Category</th>
+                                #
 
-                        <th>Status</th>
+                                @if($sort === 'id')
+                                    {{ $direction === 'asc' ? '↑' : '↓' }}
+                                @endif
+
+                            </a>
+
+                        </th>
+
+
+                        {{-- Image --}}
+                        <th>
+                            Image
+                        </th>
+
+
+                        {{-- Title --}}
+                        <th>
+
+                            <a
+                                href="{{ request()->fullUrlWithQuery([
+                                    'sort' => 'title',
+                                    'direction' => ($sort === 'title' && $direction === 'asc') ? 'desc' : 'asc',
+                                    'page' => 1
+                                ]) }}"
+                                class="sort-link"
+                            >
+
+                                Title
+
+                                @if($sort === 'title')
+                                    {{ $direction === 'asc' ? '↑' : '↓' }}
+                                @endif
+
+                            </a>
+
+                        </th>
+
+
+                        {{-- Category --}}
+                        <th>
+
+                            <a
+                                href="{{ request()->fullUrlWithQuery([
+                                    'sort' => 'category',
+                                    'direction' => ($sort === 'category' && $direction === 'asc') ? 'desc' : 'asc',
+                                    'page' => 1
+                                ]) }}"
+                                class="sort-link"
+                            >
+
+                                Category
+
+                                @if($sort === 'category')
+                                    {{ $direction === 'asc' ? '↑' : '↓' }}
+                                @endif
+
+                            </a>
+
+                        </th>
+
+
+                        {{-- Status --}}
+                        <th>
+
+                            <a
+                                href="{{ request()->fullUrlWithQuery([
+                                    'sort' => 'status',
+                                    'direction' => ($sort === 'status' && $direction === 'asc') ? 'desc' : 'asc',
+                                    'page' => 1
+                                ]) }}"
+                                class="sort-link"
+                            >
+
+                                Status
+
+                                @if($sort === 'status')
+                                    {{ $direction === 'asc' ? '↑' : '↓' }}
+                                @endif
+
+                            </a>
+
+                        </th>
+
+
+                        {{-- Created --}}
+                        <th>
+
+                            <a
+                                href="{{ request()->fullUrlWithQuery([
+                                    'sort' => 'created_at',
+                                    'direction' => ($sort === 'created_at' && $direction === 'asc') ? 'desc' : 'asc',
+                                    'page' => 1
+                                ]) }}"
+                                class="sort-link"
+                            >
+
+                                Created
+
+                                @if($sort === 'created_at')
+                                    {{ $direction === 'asc' ? '↑' : '↓' }}
+                                @endif
+
+                            </a>
+
+                        </th>
+
 
                         <th width="220">
                             Actions
@@ -252,163 +752,192 @@
 
                     @forelse($posts as $post)
 
-                    <tr
-                        id="post-row-{{ $post->id }}"
-                    >
+                        <tr id="post-row-{{ $post->id }}">
 
-                        <!-- Checkbox -->
+                            {{-- Checkbox --}}
+                            <td class="text-center">
 
-                        <td class="text-center">
-
-                            <input
-                                type="checkbox"
-                                class="form-check-input post-checkbox"
-                                value="{{ $post->id }}"
-                                onchange="updateBulkSelection()"
-                            >
-
-                        </td>
-
-
-                        <!-- ID -->
-
-                        <td>
-                            {{ $post->id }}
-                        </td>
-
-
-                        <!-- Image -->
-
-                        <td>
-
-                            @if($post->image)
-
-                                <img
-                                    src="{{ asset('storage/'.$post->image) }}"
-                                    width="50"
-                                    height="50"
-                                    style="object-fit:cover;border-radius:4px;"
+                                <input
+                                    type="checkbox"
+                                    class="form-check-input post-checkbox"
+                                    value="{{ $post->id }}"
+                                    onchange="updateBulkSelection()"
                                 >
 
-                            @else
+                            </td>
 
-                                <span class="text-muted">
+
+                            {{-- ID --}}
+                            <td>
+                                <strong>
+                                    {{ $post->id }}
+                                </strong>
+                            </td>
+
+
+                            {{-- Image --}}
+                            <td>
+
+                                @if($post->image)
+
+                                    <img
+                                        src="{{ asset('storage/' . $post->image) }}"
+                                        class="post-image"
+                                        alt="Post Image"
+                                    >
+
+                                @else
+
+                                    <span class="text-muted">
+                                        —
+                                    </span>
+
+                                @endif
+
+                            </td>
+
+
+                            {{-- Title --}}
+                            <td>
+
+                                <strong>
+                                    {{ $post->title }}
+                                </strong>
+
+                                @if($post->content)
+
+                                    <br>
+
+                                    <small class="text-muted">
+
+                                        {{ \Illuminate\Support\Str::limit($post->content, 60) }}
+
+                                    </small>
+
+                                @endif
+
+                            </td>
+
+
+                            {{-- Category --}}
+                            <td>
+
+                                @if($post->category)
+
+                                    <span class="badge bg-light text-dark border">
+                                        {{ $post->category }}
+                                    </span>
+
+                                @else
+
                                     —
-                                </span>
 
-                            @endif
+                                @endif
 
-                        </td>
+                            </td>
 
 
-                        <!-- Title -->
+                            {{-- Status --}}
+                            <td>
 
-                        <td>
+                                <button
+                                    type="button"
+                                    id="status-btn-{{ $post->id }}"
+                                    class="badge border-0 status-toggle-btn
+                                        {{ $post->status === 'published'
+                                            ? 'bg-success'
+                                            : 'bg-secondary' }}"
+                                    onclick="togglePostStatus({{ $post->id }})"
+                                >
 
-                            <strong>
-                                {{ $post->title }}
-                            </strong>
+                                    <span id="status-text-{{ $post->id }}">
+                                        {{ ucfirst($post->status) }}
+                                    </span>
 
-                            @if($post->content)
+                                </button>
 
-                                <br>
+                            </td>
+
+
+                            {{-- Created --}}
+                            <td>
 
                                 <small class="text-muted">
 
-                                    {{ Str::limit($post->content, 60) }}
+                                    {{ $post->created_at->format('d M Y') }}
+
+                                    <br>
+
+                                    {{ $post->created_at->format('h:i A') }}
 
                                 </small>
 
-                            @endif
-
-                        </td>
+                            </td>
 
 
-                        <!-- Category -->
+                            {{-- Actions --}}
+                            <td>
 
-                        <td>
+                                <div class="d-flex gap-1 flex-wrap">
 
-                            {{ $post->category ?? '—' }}
-
-                        </td>
-
-
-                        <!-- ================================================= -->
-                        <!-- AJAX Status Toggle -->
-                        <!-- ================================================= -->
-
-                        <td>
-
-                            <button
-                                type="button"
-                                id="status-btn-{{ $post->id }}"
-                                class="badge border-0 status-toggle-btn
-                                {{ $post->status === 'published'
-                                    ? 'bg-success'
-                                    : 'bg-secondary' }}"
-                                style="cursor:pointer;"
-                                onclick="togglePostStatus({{ $post->id }})"
-                            >
-
-                                <span id="status-text-{{ $post->id }}">
-                                    {{ ucfirst($post->status) }}
-                                </span>
-
-                            </button>
-
-                        </td>
+                                    <a
+                                        href="{{ route('posts.edit', $post->id) }}"
+                                        class="btn btn-warning btn-sm"
+                                    >
+                                        Edit
+                                    </a>
 
 
-                        <!-- Actions -->
+                                    <button
+                                        type="button"
+                                        class="btn btn-danger btn-sm"
+                                        onclick="deletePost({{ $post->id }})"
+                                    >
+                                        Delete
+                                    </button>
 
-                        <td>
-
-                            <a
-                                href="{{ route('posts.edit', $post->id) }}"
-                                class="btn btn-warning btn-sm"
-                            >
-                                Edit
-                            </a>
-
-
-                            <button
-                                type="button"
-                                class="btn btn-danger btn-sm"
-                                onclick="deletePost({{ $post->id }})"
-                            >
-                                Delete
-                            </button>
+                                </div>
 
 
-                            <form
-                                id="delete-form-{{ $post->id }}"
-                                action="{{ route('posts.delete', $post->id) }}"
-                                method="POST"
-                                class="no-spinner d-none"
-                            >
+                                <form
+                                    id="delete-form-{{ $post->id }}"
+                                    action="{{ route('posts.delete', $post->id) }}"
+                                    method="POST"
+                                    class="no-spinner d-none"
+                                >
 
-                                @csrf
+                                    @csrf
 
-                            </form>
+                                </form>
 
-                        </td>
+                            </td>
 
-                    </tr>
+                        </tr>
 
                     @empty
 
-                    <tr>
+                        <tr>
 
-                        <td
-                            colspan="7"
-                            class="text-center text-muted py-4"
-                        >
+                            <td
+                                colspan="8"
+                                class="text-center py-5"
+                            >
 
-                            No posts found.
+                                <div class="fs-1 mb-2">
+                                    📝
+                                </div>
 
-                        </td>
+                                <h5 class="text-muted">
+                                    No posts found
+                                </h5>
 
-                    </tr>
+                                <p class="text-muted mb-0">
+                                    Try changing your search or filters.
+                                </p>
+
+                            </td>
+
+                        </tr>
 
                     @endforelse
 
@@ -421,22 +950,54 @@
     </div>
 
 
-    <!-- Pagination -->
+    {{-- =========================================================
+         NUMERIC ONLY PAGINATION
+         No Previous / Next
+    ========================================================== --}}
+    @if($posts->hasPages())
 
-    <div class="mt-3">
+        <div class="d-flex justify-content-center mt-4">
 
-        {{ $posts->links() }}
+            <nav aria-label="Posts pagination">
 
-    </div>
+                <ul class="pagination mb-0">
+
+                    @for($page = 1; $page <= $posts->lastPage(); $page++)
+
+                        <li
+                            class="page-item {{ $page == $posts->currentPage() ? 'active' : '' }}"
+                        >
+
+                            <a
+                                class="page-link"
+                                href="{{ $posts->url($page) }}"
+                            >
+                                {{ $page }}
+                            </a>
+
+                        </li>
+
+                    @endfor
+
+                </ul>
+
+            </nav>
+
+        </div>
+
+    @endif
 
 </div>
 
 
+{{-- =========================================================
+     JavaScript
+========================================================== --}}
 <script>
 
 /*
 |--------------------------------------------------------------------------
-| Individual Delete Confirmation
+| Individual Delete
 |--------------------------------------------------------------------------
 */
 
@@ -462,7 +1023,7 @@ function deletePost(id) {
 
         reverseButtons: true
 
-    }).then(result => {
+    }).then(function (result) {
 
         if (result.isConfirmed) {
 
@@ -479,25 +1040,20 @@ function deletePost(id) {
 
 /*
 |--------------------------------------------------------------------------
-| AJAX Status Toggle
+| Status Toggle
 |--------------------------------------------------------------------------
 */
 
 async function togglePostStatus(id) {
 
-    const button = document.getElementById(
-        'status-btn-' + id
-    );
+    const button =
+        document.getElementById('status-btn-' + id);
 
-    const text = document.getElementById(
-        'status-text-' + id
-    );
+    const text =
+        document.getElementById('status-text-' + id);
 
-
-    const currentStatus = text.textContent
-        .trim()
-        .toLowerCase();
-
+    const currentStatus =
+        text.textContent.trim().toLowerCase();
 
     const newStatus =
         currentStatus === 'published'
@@ -524,8 +1080,6 @@ async function togglePostStatus(id) {
 
         cancelButtonText: 'Cancel',
 
-        confirmButtonColor: '#0d6efd',
-
         reverseButtons: true
 
     });
@@ -541,41 +1095,17 @@ async function togglePostStatus(id) {
         button.disabled = true;
 
 
-        Swal.fire({
-
-            title: 'Updating status...',
-
-            allowOutsideClick: false,
-
-            allowEscapeKey: false,
-
-            didOpen: () => {
-
-                Swal.showLoading();
-
-            }
-
-        });
-
-
         const response = await fetch(
             "{{ url('/posts/toggle-status') }}/" + id,
             {
-
                 method: 'POST',
 
                 headers: {
-
                     'Content-Type': 'application/json',
-
                     'Accept': 'application/json',
-
                     'X-CSRF-TOKEN': csrfToken,
-
                     'X-Requested-With': 'XMLHttpRequest'
-
                 }
-
             }
         );
 
@@ -586,17 +1116,12 @@ async function togglePostStatus(id) {
         if (!response.ok || !data.success) {
 
             throw new Error(
-                data.message || 'Unable to update status.'
+                data.message ||
+                'Unable to update status.'
             );
 
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Update badge without page reload
-        |--------------------------------------------------------------------------
-        */
 
         text.textContent =
             data.status.charAt(0).toUpperCase() +
@@ -609,33 +1134,20 @@ async function togglePostStatus(id) {
         );
 
 
-        if (data.status === 'published') {
-
-            button.classList.add('bg-success');
-
-        } else {
-
-            button.classList.add('bg-secondary');
-
-        }
-
-
-        Swal.close();
+        button.classList.add(
+            data.status === 'published'
+                ? 'bg-success'
+                : 'bg-secondary'
+        );
 
 
         Toast.fire({
-
             icon: 'success',
-
             title: data.message
-
         });
 
 
     } catch (error) {
-
-        Swal.close();
-
 
         Swal.fire({
 
@@ -643,10 +1155,9 @@ async function togglePostStatus(id) {
 
             title: 'Status Update Failed',
 
-            text: error.message ||
-                'Something went wrong.',
-
-            confirmButtonText: 'OK'
+            text:
+                error.message ||
+                'Something went wrong.'
 
         });
 
@@ -667,16 +1178,13 @@ async function togglePostStatus(id) {
 
 function toggleSelectAll(checkbox) {
 
-    const checkboxes = document.querySelectorAll(
-        '.post-checkbox'
-    );
+    document
+        .querySelectorAll('.post-checkbox')
+        .forEach(function (item) {
 
+            item.checked = checkbox.checked;
 
-    checkboxes.forEach(function (item) {
-
-        item.checked = checkbox.checked;
-
-    });
+        });
 
 
     updateBulkSelection();
@@ -686,23 +1194,24 @@ function toggleSelectAll(checkbox) {
 
 /*
 |--------------------------------------------------------------------------
-| Update Bulk Selection
+| Bulk Selection
 |--------------------------------------------------------------------------
 */
 
 function updateBulkSelection() {
 
-    const checkboxes = document.querySelectorAll(
-        '.post-checkbox'
-    );
+    const checkboxes =
+        document.querySelectorAll('.post-checkbox');
 
 
-    const selected = document.querySelectorAll(
-        '.post-checkbox:checked'
-    );
+    const selected =
+        document.querySelectorAll(
+            '.post-checkbox:checked'
+        );
 
 
-    const count = selected.length;
+    const count =
+        selected.length;
 
 
     document.getElementById(
@@ -716,20 +1225,14 @@ function updateBulkSelection() {
 
     if (count > 0) {
 
-        toolbar.classList.add('show');
+        toolbar.style.display = 'flex';
 
     } else {
 
-        toolbar.classList.remove('show');
+        toolbar.style.display = 'none';
 
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Update Select All Checkbox State
-    |--------------------------------------------------------------------------
-    */
 
     const selectAll =
         document.getElementById('select-all');
@@ -742,6 +1245,7 @@ function updateBulkSelection() {
         selectAll.indeterminate = false;
 
         return;
+
     }
 
 
@@ -776,13 +1280,13 @@ function updateBulkSelection() {
 
 function clearSelection() {
 
-    document.querySelectorAll(
-        '.post-checkbox'
-    ).forEach(function (checkbox) {
+    document
+        .querySelectorAll('.post-checkbox')
+        .forEach(function (checkbox) {
 
-        checkbox.checked = false;
+            checkbox.checked = false;
 
-    });
+        });
 
 
     document.getElementById(
@@ -814,8 +1318,11 @@ async function bulkDeletePosts() {
         );
 
 
-    const ids = Array.from(selected)
-        .map(checkbox => checkbox.value);
+    const ids =
+        Array.from(selected)
+            .map(function (checkbox) {
+                return checkbox.value;
+            });
 
 
     if (ids.length === 0) {
@@ -826,9 +1333,7 @@ async function bulkDeletePosts() {
 
             title: 'No posts selected',
 
-            text: 'Please select at least one post.',
-
-            confirmButtonText: 'OK'
+            text: 'Please select at least one post.'
 
         });
 
@@ -837,23 +1342,14 @@ async function bulkDeletePosts() {
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | SweetAlert Bulk Confirmation
-    |--------------------------------------------------------------------------
-    */
-
     const result = await Swal.fire({
 
         title: 'Delete selected posts?',
 
         html:
-            'You are about to move <strong>' +
+            'Move <strong>' +
             ids.length +
-            '</strong> post(s) to trash.<br><br>' +
-            '<span class="text-danger">' +
-            'This action will remove them from the current list.' +
-            '</span>',
+            '</strong> post(s) to trash?',
 
         icon: 'warning',
 
@@ -861,10 +1357,7 @@ async function bulkDeletePosts() {
 
         confirmButtonColor: '#d33',
 
-        cancelButtonColor: '#6c757d',
-
-        confirmButtonText:
-            'Yes, delete ' + ids.length + ' post(s)',
+        confirmButtonText: 'Yes, delete them',
 
         cancelButtonText: 'Cancel',
 
@@ -874,106 +1367,31 @@ async function bulkDeletePosts() {
 
 
     if (!result.isConfirmed) {
-
         return;
-
     }
 
 
     try {
 
-        /*
-        |--------------------------------------------------------------------------
-        | Loading SweetAlert
-        |--------------------------------------------------------------------------
-        */
-
-        Swal.fire({
-
-            title: 'Deleting posts...',
-
-            html:
-                'Moving <strong>' +
-                ids.length +
-                '</strong> post(s) to trash.',
-
-            allowOutsideClick: false,
-
-            allowEscapeKey: false,
-
-            didOpen: () => {
-
-                Swal.showLoading();
-
-            }
-
-        });
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | AJAX Request
-        |--------------------------------------------------------------------------
-        */
-
-        const response = await fetch(
-            "{{ route('posts.bulkDelete') }}",
-            {
-
-                method: 'POST',
-
-                headers: {
-
-                    'Content-Type': 'application/json',
-
-                    'Accept': 'application/json',
-
-                    'X-CSRF-TOKEN': csrfToken,
-
-                    'X-Requested-With': 'XMLHttpRequest'
-
-                },
-
-                body: JSON.stringify({
-
+        const data =
+            await ajaxPost(
+                "{{ route('posts.bulkDelete') }}",
+                {
                     post_ids: ids
-
-                })
-
-            }
-        );
-
-
-        const data = await response.json();
-
-
-        if (!response.ok || !data.success) {
-
-            throw new Error(
-                data.message ||
-                'Unable to delete selected posts.'
+                }
             );
 
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Remove Deleted Rows Without Page Reload
-        |--------------------------------------------------------------------------
-        */
 
         ids.forEach(function (id) {
 
-            const row = document.getElementById(
-                'post-row-' + id
-            );
+            const row =
+                document.getElementById(
+                    'post-row-' + id
+                );
 
 
             if (row) {
-
                 row.remove();
-
             }
 
         });
@@ -982,73 +1400,25 @@ async function bulkDeletePosts() {
         clearSelection();
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Success SweetAlert
-        |--------------------------------------------------------------------------
-        */
-
-        Swal.fire({
+        Toast.fire({
 
             icon: 'success',
 
-            title: 'Deleted Successfully!',
-
-            html:
-                '<strong>' +
-                data.deleted_count +
-                '</strong> post(s) have been moved to trash.',
-
-            confirmButtonText: 'OK',
-
-            timer: 2500,
-
-            timerProgressBar: true
+            title: data.message
 
         });
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Check Empty Table
-        |--------------------------------------------------------------------------
-        */
+        setTimeout(function () {
 
-        const remainingRows =
-            document.querySelectorAll(
-                'tbody tr[id^="post-row-"]'
-            );
+            window.location.reload();
 
-
-        if (remainingRows.length === 0) {
-
-            setTimeout(function () {
-
-                window.location.reload();
-
-            }, 2600);
-
-        }
+        }, 1200);
 
 
     } catch (error) {
 
-        Swal.close();
-
-
-        Swal.fire({
-
-            icon: 'error',
-
-            title: 'Bulk Delete Failed',
-
-            text:
-                error.message ||
-                'Something went wrong while deleting posts.',
-
-            confirmButtonText: 'OK'
-
-        });
+        showAjaxError(error);
 
     }
 
@@ -1057,7 +1427,117 @@ async function bulkDeletePosts() {
 
 /*
 |--------------------------------------------------------------------------
-| Initial Selection State
+| Bulk Status Update
+|--------------------------------------------------------------------------
+*/
+
+async function bulkUpdateStatus(status) {
+
+    const selected =
+        document.querySelectorAll(
+            '.post-checkbox:checked'
+        );
+
+
+    const ids =
+        Array.from(selected)
+            .map(function (checkbox) {
+                return checkbox.value;
+            });
+
+
+    if (ids.length === 0) {
+
+        Swal.fire({
+
+            icon: 'info',
+
+            title: 'No posts selected',
+
+            text: 'Please select at least one post.'
+
+        });
+
+        return;
+
+    }
+
+
+    const result = await Swal.fire({
+
+        title: 'Update status?',
+
+        html:
+            'Set <strong>' +
+            ids.length +
+            '</strong> selected post(s) to <strong>' +
+            status.toUpperCase() +
+            '</strong>?',
+
+        icon: 'question',
+
+        showCancelButton: true,
+
+        confirmButtonText: 'Yes, update',
+
+        cancelButtonText: 'Cancel',
+
+        reverseButtons: true
+
+    });
+
+
+    if (!result.isConfirmed) {
+        return;
+    }
+
+
+    try {
+
+        const data =
+            await ajaxPost(
+                "{{ route('posts.bulkStatus') }}",
+                {
+                    post_ids: ids,
+                    status: status
+                }
+            );
+
+
+        Swal.fire({
+
+            icon: 'success',
+
+            title: 'Updated Successfully',
+
+            text: data.message,
+
+            timer: 1800,
+
+            showConfirmButton: false
+
+        });
+
+
+        setTimeout(function () {
+
+            window.location.reload();
+
+        }, 1800);
+
+
+    } catch (error) {
+
+        showAjaxError(error);
+
+    }
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Initial State
 |--------------------------------------------------------------------------
 */
 

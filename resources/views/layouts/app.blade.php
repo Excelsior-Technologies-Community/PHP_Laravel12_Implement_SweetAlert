@@ -1,707 +1,957 @@
 <!DOCTYPE html>
-<html lang="en" id="htmlRoot">
+<html lang="en">
 
 <head>
 
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <title>Laravel CRUD + SweetAlert</title>
-
-    <!-- Bootstrap -->
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
     >
 
-    <!-- SweetAlert2 -->
+    <meta
+        name="csrf-token"
+        content="{{ csrf_token() }}"
+    >
+
+    <title>
+        Posts App
+    </title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
 
+        body {
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* -------------------------------------------------------------
+           Dark Mode
+        ------------------------------------------------------------- */
+
         body.dark-mode {
-            background: #1a1a2e !important;
-            color: #e0e0e0;
+            background-color: #121212 !important;
+            color: #f5f5f5;
+        }
+
+        body.dark-mode .card {
+            background-color: #1e1e1e;
+            color: #f5f5f5;
+            border-color: #333;
         }
 
         body.dark-mode .table {
-            color: #e0e0e0;
+            color: #f5f5f5;
         }
 
-        body.dark-mode .card,
-        body.dark-mode .table {
-            background: #16213e !important;
-            border-color: #0f3460;
+        body.dark-mode .table-bordered {
+            border-color: #444;
         }
 
         body.dark-mode .form-control,
         body.dark-mode .form-select {
-            background: #0f3460;
-            color: #e0e0e0;
-            border-color: #1a1a2e;
+            background-color: #2a2a2a;
+            color: #fff;
+            border-color: #555;
         }
 
         body.dark-mode .form-control::placeholder {
             color: #aaa;
         }
 
-        body.dark-mode .btn-light {
-            background: #0f3460;
-            color: #e0e0e0;
-            border-color: #1a1a2e;
+        body.dark-mode .form-label {
+            color: #fff;
         }
 
         body.dark-mode .text-muted {
             color: #aaa !important;
         }
 
-        #spinner-overlay {
+        body.dark-mode .navbar {
+            background-color: #1b1b1b !important;
+        }
 
-            display: none;
+        body.dark-mode .navbar-brand,
+        body.dark-mode .nav-link {
+            color: #fff !important;
+        }
 
+        body.dark-mode .page-link {
+            background-color: #2a2a2a;
+            color: #fff;
+            border-color: #555;
+        }
+
+        body.dark-mode .page-item.active .page-link {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+        /* -------------------------------------------------------------
+           Loading Spinner
+        ------------------------------------------------------------- */
+
+        #loading-overlay {
             position: fixed;
-
             inset: 0;
-
-            background: rgba(0, 0, 0, .45);
-
-            z-index: 9999;
-
-            align-items: center;
-
-            justify-content: center;
-        }
-
-        #spinner-overlay.show {
-            display: flex;
-        }
-
-        .bulk-toolbar {
+            background: rgba(0, 0, 0, 0.45);
             display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
         }
 
-        .bulk-toolbar.show {
-            display: flex;
+        #loading-overlay .spinner-box {
+            background: #fff;
+            padding: 25px 35px;
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.25);
+            text-align: center;
         }
 
-        .post-checkbox {
-            cursor: pointer;
+        body.dark-mode #loading-overlay .spinner-box {
+            background: #222;
+            color: #fff;
         }
 
-        /* Unsaved Changes Indicator */
+        .unsaved-indicator {
+            display: none;
+            color: #dc3545;
+            font-size: 13px;
+            font-weight: 600;
+        }
 
-.unsaved-indicator {
-    display: none;
-    font-size: 0.85rem;
-    color: #dc3545;
-    font-weight: 600;
-}
+        .unsaved-indicator.show {
+            display: inline-block;
+        }
 
-.unsaved-indicator.show {
-    display: inline-block;
-}
+        /* -------------------------------------------------------------
+           Dashboard Statistics
+        ------------------------------------------------------------- */
+
+        .stat-card {
+            border: 0;
+            border-radius: 12px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* -------------------------------------------------------------
+           Sorting Links
+        ------------------------------------------------------------- */
+
+        .sort-link {
+            color: inherit;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .sort-link:hover {
+            text-decoration: underline;
+        }
+
+        .sort-arrow {
+            font-size: 11px;
+            margin-left: 3px;
+        }
 
     </style>
 
 </head>
 
-<body class="bg-light" id="bodyEl">
+
+<body class="bg-light">
 
 
-<!-- Loading Spinner -->
+    <!-- ================================================================
+         Loading Overlay
+    ================================================================= -->
 
-<div id="spinner-overlay">
+    <div id="loading-overlay">
 
-    <div
-        class="spinner-border text-light"
-        style="width:3rem;height:3rem;"
-    ></div>
+        <div class="spinner-box">
 
-</div>
+            <div
+                class="spinner-border text-primary mb-3"
+                role="status"
+            >
+                <span class="visually-hidden">
+                    Loading...
+                </span>
+            </div>
 
+            <div>
+                Please wait...
+            </div>
 
-<!-- Navigation -->
-
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3 mb-4">
-
-    <a
-        class="navbar-brand"
-        href="{{ route('posts.index') }}"
-    >
-        📝 Posts App
-    </a>
-
-    <div class="ms-auto d-flex gap-2">
-
-        <a
-            href="{{ route('posts.trash') }}"
-            class="btn btn-sm btn-outline-warning"
-        >
-            🗑 Trash
-        </a>
-
-        <button
-            onclick="toggleDark()"
-            class="btn btn-sm btn-outline-light"
-            id="darkBtn"
-        >
-            🌙 Dark
-        </button>
+        </div>
 
     </div>
 
-</nav>
 
+    <!-- ================================================================
+         Navbar
+    ================================================================= -->
 
-@yield('content')
+    <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
 
+        <div class="container">
 
-<script>
+            <a
+                href="{{ route('posts.index') }}"
+                class="navbar-brand fw-bold"
+            >
+                Posts App
+            </a>
 
-/*
-|--------------------------------------------------------------------------
-| CSRF Token
-|--------------------------------------------------------------------------
-*/
 
-const csrfToken = document
-    .querySelector('meta[name="csrf-token"]')
-    .getAttribute('content');
+            <button
+                class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarContent"
+            >
 
+                <span class="navbar-toggler-icon"></span>
 
-/*
-|--------------------------------------------------------------------------
-| Dark Mode
-|--------------------------------------------------------------------------
-*/
+            </button>
 
-function toggleDark() {
 
-    document.body.classList.toggle('dark-mode');
+            <div
+                class="collapse navbar-collapse"
+                id="navbarContent"
+            >
 
-    const on = document.body.classList.contains('dark-mode');
+                <ul class="navbar-nav me-auto">
 
-    localStorage.setItem(
-        'dark',
-        on ? '1' : '0'
-    );
+                    <li class="nav-item">
 
-    document.getElementById('darkBtn').textContent =
-        on ? '☀️ Light' : '🌙 Dark';
-}
+                        <a
+                            href="{{ route('posts.index') }}"
+                            class="nav-link"
+                        >
+                            Posts
+                        </a>
 
+                    </li>
 
-if (localStorage.getItem('dark') === '1') {
 
-    document.body.classList.add('dark-mode');
+                    <li class="nav-item">
 
-    document.getElementById('darkBtn').textContent =
-        '☀️ Light';
-}
+                        <a
+                            href="{{ route('posts.trash') }}"
+                            class="nav-link"
+                        >
+                            🗑 Trash
+                        </a>
 
+                    </li>
 
-/*
-|--------------------------------------------------------------------------
-| Loading Spinner
-|--------------------------------------------------------------------------
-*/
-
-document.addEventListener('submit', function (e) {
-
-    if (!e.target.classList.contains('no-spinner')) {
-
-        document
-            .getElementById('spinner-overlay')
-            .classList.add('show');
-    }
-
-});
-
-
-/*
-|--------------------------------------------------------------------------
-| Hide Spinner
-|--------------------------------------------------------------------------
-*/
-
-window.addEventListener('pageshow', function () {
-
-    document
-        .getElementById('spinner-overlay')
-        .classList.remove('show');
-
-});
-
-
-/*
-|--------------------------------------------------------------------------
-| SweetAlert Toast
-|--------------------------------------------------------------------------
-*/
-
-const Toast = Swal.mixin({
-
-    toast: true,
-
-    position: 'top-end',
-
-    showConfirmButton: false,
-
-    timer: 2500,
-
-    timerProgressBar: true,
-
-});
-
-
-/*
-|--------------------------------------------------------------------------
-| SweetAlert Session Success
-|--------------------------------------------------------------------------
-*/
-
-@if(session('success'))
-
-document.addEventListener('DOMContentLoaded', function () {
-
-    Toast.fire({
-
-        icon: 'success',
-
-        title: @json(session('success'))
-
-    });
-
-});
-
-@endif
-
-
-/*
-|--------------------------------------------------------------------------
-| SweetAlert Session Error
-|--------------------------------------------------------------------------
-*/
-
-@if(session('error'))
-
-document.addEventListener('DOMContentLoaded', function () {
-
-    Swal.fire({
-
-        icon: 'error',
-
-        title: 'Something went wrong',
-
-        text: @json(session('error')),
-
-        confirmButtonText: 'OK'
-
-    });
-
-});
-
-@endif
-
-
-/*
-|--------------------------------------------------------------------------
-| SweetAlert Validation Errors
-|--------------------------------------------------------------------------
-*/
-
-@if($errors->any())
-
-document.addEventListener('DOMContentLoaded', function () {
-
-    Swal.fire({
-
-        icon: 'error',
-
-        title: 'Validation Error',
-
-        html: `
-            <div class="text-start">
-                <ul class="mb-0">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
                 </ul>
+
+
+                <button
+                    type="button"
+                    id="darkModeToggle"
+                    class="btn btn-outline-light btn-sm"
+                >
+                    🌙 Dark Mode
+                </button>
+
             </div>
-        `,
 
-        confirmButtonText: 'Fix Errors'
+        </div>
 
-    });
-
-});
-
-@endif
+    </nav>
 
 
-/*
-|--------------------------------------------------------------------------
-| AJAX Error Handler
-|--------------------------------------------------------------------------
-*/
+    <!-- ================================================================
+         Main Content
+    ================================================================= -->
 
-function showAjaxError(error, defaultMessage = 'Something went wrong.') {
+    <main class="py-4">
 
-    let message = defaultMessage;
+        @yield('content')
 
-    if (
-        error &&
-        error.responseJSON &&
-        error.responseJSON.message
-    ) {
-        message = error.responseJSON.message;
-    }
-
-    Swal.fire({
-
-        icon: 'error',
-
-        title: 'Request Failed',
-
-        text: message,
-
-        confirmButtonText: 'OK'
-
-    });
-}
+    </main>
 
 
-/*
-|--------------------------------------------------------------------------
-| Generic AJAX POST Helper
-|--------------------------------------------------------------------------
-*/
+    <!-- ================================================================
+         Bootstrap JS
+    ================================================================= -->
 
-async function ajaxPost(url, data = {}) {
-
-    const response = await fetch(url, {
-
-        method: 'POST',
-
-        headers: {
-
-            'Content-Type': 'application/json',
-
-            'Accept': 'application/json',
-
-            'X-CSRF-TOKEN': csrfToken,
-
-            'X-Requested-With': 'XMLHttpRequest'
-
-        },
-
-        body: JSON.stringify(data)
-
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-
-        throw {
-
-            status: response.status,
-
-            responseJSON: result
-
-        };
-    }
-
-    return result;
-}
-
-/*
-|--------------------------------------------------------------------------
-| Unsaved Changes Protection
-|--------------------------------------------------------------------------
-*/
-
-let unsavedChanges = false;
-let allowNavigation = false;
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+    ></script>
 
 
-/*
-|--------------------------------------------------------------------------
-| Mark Form As Changed
-|--------------------------------------------------------------------------
-*/
+    <script>
 
-function markFormAsChanged() {
+        /*
+        |--------------------------------------------------------------------------
+        | Global CSRF Token
+        |--------------------------------------------------------------------------
+        */
 
-    unsavedChanges = true;
-
-    document
-        .querySelectorAll('.unsaved-indicator')
-        .forEach(function (indicator) {
-
-            indicator.classList.add('show');
-
-        });
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Mark Form As Saved / Clean
-|--------------------------------------------------------------------------
-*/
-
-function markFormAsClean() {
-
-    unsavedChanges = false;
-
-    document
-        .querySelectorAll('.unsaved-indicator')
-        .forEach(function (indicator) {
-
-            indicator.classList.remove('show');
-
-        });
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| Initialize Unsaved Changes Protection
-|--------------------------------------------------------------------------
-*/
-
-document.addEventListener('DOMContentLoaded', function () {
-
-    const forms = document.querySelectorAll(
-        '.unsaved-changes-form'
-    );
-
-
-    forms.forEach(function (form) {
+        const csrfToken =
+            document
+                .querySelector('meta[name="csrf-token"]')
+                .getAttribute('content');
 
 
         /*
         |--------------------------------------------------------------------------
-        | Detect Text Input Changes
+        | Dark Mode
         |--------------------------------------------------------------------------
         */
 
-        form.addEventListener('input', function () {
+        const darkModeToggle =
+            document.getElementById('darkModeToggle');
 
-            markFormAsChanged();
+
+        function applyDarkMode() {
+
+            const darkMode =
+                localStorage.getItem('darkMode') === 'true';
+
+            if (darkMode) {
+
+                document.body.classList.add('dark-mode');
+
+                if (darkModeToggle) {
+
+                    darkModeToggle.innerHTML =
+                        '☀️ Light Mode';
+
+                }
+
+            } else {
+
+                document.body.classList.remove('dark-mode');
+
+                if (darkModeToggle) {
+
+                    darkModeToggle.innerHTML =
+                        '🌙 Dark Mode';
+
+                }
+
+            }
+
+        }
+
+
+        applyDarkMode();
+
+
+        if (darkModeToggle) {
+
+            darkModeToggle.addEventListener(
+                'click',
+                function() {
+
+                    const isDark =
+                        document.body.classList.toggle(
+                            'dark-mode'
+                        );
+
+                    localStorage.setItem(
+                        'darkMode',
+                        isDark
+                    );
+
+                    this.innerHTML =
+                        isDark
+                            ? '☀️ Light Mode'
+                            : '🌙 Dark Mode';
+
+                }
+            );
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SweetAlert Toast
+        |--------------------------------------------------------------------------
+        */
+
+        const Toast = Swal.mixin({
+
+            toast: true,
+
+            position: 'top-end',
+
+            showConfirmButton: false,
+
+            timer: 3000,
+
+            timerProgressBar: true
 
         });
 
 
         /*
         |--------------------------------------------------------------------------
-        | Detect Select / File / Other Changes
+        | Loading Spinner
         |--------------------------------------------------------------------------
         */
 
-        form.addEventListener('change', function () {
+        function showLoading() {
 
-            markFormAsChanged();
+            const overlay =
+                document.getElementById('loading-overlay');
 
-        });
+            if (overlay) {
+
+                overlay.style.display = 'flex';
+
+            }
+
+        }
+
+
+        function hideLoading() {
+
+            const overlay =
+                document.getElementById('loading-overlay');
+
+            if (overlay) {
+
+                overlay.style.display = 'none';
+
+            }
+
+        }
 
 
         /*
         |--------------------------------------------------------------------------
-        | Form Submission
+        | Form Submit Loading
         |--------------------------------------------------------------------------
         */
 
-        form.addEventListener('submit', function () {
+        document.addEventListener(
+            'submit',
+            function(event) {
 
-            markFormAsClean();
+                const form = event.target;
 
-            allowNavigation = true;
+                if (
+                    form.tagName === 'FORM' &&
+                    !form.classList.contains('no-spinner')
+                ) {
 
-        });
+                    showLoading();
 
-    });
+                }
+
+            }
+        );
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Browser Refresh / Close Protection
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | Browser Back / Forward
+        |--------------------------------------------------------------------------
+        */
 
-    window.addEventListener('beforeunload', function (event) {
+        window.addEventListener(
+            'pageshow',
+            function() {
 
-        if (
-            unsavedChanges &&
-            !allowNavigation
+                hideLoading();
+
+            }
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Session Success Message
+        |--------------------------------------------------------------------------
+        */
+
+        @if(session('success'))
+
+        document.addEventListener(
+            'DOMContentLoaded',
+            function() {
+
+                Toast.fire({
+
+                    icon: 'success',
+
+                    title: @json(session('success'))
+
+                });
+
+            }
+        );
+
+        @endif
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Session Error Message
+        |--------------------------------------------------------------------------
+        */
+
+        @if(session('error'))
+
+        document.addEventListener(
+            'DOMContentLoaded',
+            function() {
+
+                Toast.fire({
+
+                    icon: 'error',
+
+                    title: @json(session('error'))
+
+                });
+
+            }
+        );
+
+        @endif
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validation Errors
+        |--------------------------------------------------------------------------
+        */
+
+        @if($errors->any())
+
+        document.addEventListener(
+            'DOMContentLoaded',
+            function() {
+
+                Swal.fire({
+
+                    icon: 'error',
+
+                    title: 'Validation Error',
+
+                    html: `
+                        <div style="text-align:left;">
+                            <ul class="mb-0">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    `
+
+                });
+
+            }
+        );
+
+        @endif
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | AJAX Error Handler
+        |--------------------------------------------------------------------------
+        */
+
+        function showAjaxError(error) {
+
+            hideLoading();
+
+            let message =
+                'Something went wrong. Please try again.';
+
+
+            if (
+                error &&
+                error.responseJSON &&
+                error.responseJSON.message
+            ) {
+
+                message =
+                    error.responseJSON.message;
+
+            }
+
+
+            Swal.fire({
+
+                icon: 'error',
+
+                title: 'Error',
+
+                text: message
+
+            });
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Generic AJAX POST Helper
+        |--------------------------------------------------------------------------
+        */
+
+        function ajaxPost(
+            url,
+            data = {},
+            options = {}
         ) {
 
-            event.preventDefault();
-
-            event.returnValue = '';
-
-        }
-
-    });
+            showLoading();
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Internal Link Navigation Protection
-    |--------------------------------------------------------------------------
-    */
+            return fetch(
+                url,
+                {
 
-    document.addEventListener('click', async function (event) {
+                    method: 'POST',
 
-        const link = event.target.closest('a');
+                    headers: {
 
+                        'Content-Type':
+                            'application/json',
 
-        if (!link) {
-            return;
-        }
+                        'Accept':
+                            'application/json',
 
+                        'X-CSRF-TOKEN':
+                            csrfToken,
 
-        /*
-        |--------------------------------------------------------------------------
-        | Ignore New Tab Links
-        |--------------------------------------------------------------------------
-        */
+                        'X-Requested-With':
+                            'XMLHttpRequest'
 
-        if (
-            link.target === '_blank' ||
-            link.hasAttribute('download')
-        ) {
+                    },
 
-            return;
+                    body:
+                        JSON.stringify(data)
 
-        }
+                }
+            )
 
+            .then(
+                async function(response) {
 
-        /*
-        |--------------------------------------------------------------------------
-        | Ignore JavaScript Links
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            link.href.startsWith('javascript:')
-        ) {
-
-            return;
-
-        }
+                    const result =
+                        await response.json();
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Ignore Anchor Links
-        |--------------------------------------------------------------------------
-        */
+                    if (!response.ok) {
 
-        const currentUrl =
-            window.location.href.split('#')[0];
+                        throw {
 
-        const linkUrl =
-            link.href.split('#')[0];
+                            responseJSON:
+                                result
 
+                        };
 
-        if (currentUrl === linkUrl) {
-
-            return;
-
-        }
+                    }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | No Unsaved Changes
-        |--------------------------------------------------------------------------
-        */
+                    return result;
 
-        if (!unsavedChanges) {
+                }
+            )
 
-            return;
+            .catch(
+                function(error) {
+
+                    showAjaxError(error);
+
+                    throw error;
+
+                }
+            )
+
+            .finally(
+                function() {
+
+                    hideLoading();
+
+                }
+            );
 
         }
 
 
         /*
         |--------------------------------------------------------------------------
-        | Stop Normal Navigation
+        | Unsaved Changes Protection
         |--------------------------------------------------------------------------
         */
 
-        event.preventDefault();
+        let unsavedChanges = false;
 
-        event.stopPropagation();
+        let allowNavigation = false;
+
+
+        document.addEventListener(
+            'DOMContentLoaded',
+            function() {
+
+                const forms =
+                    document.querySelectorAll(
+                        '.unsaved-changes-form'
+                    );
+
+
+                forms.forEach(
+                    function(form) {
+
+                        const indicator =
+                            form
+                                .closest('.card')
+                                ?.parentElement
+                                ?.querySelector(
+                                    '.unsaved-indicator'
+                                );
+
+
+                        form.addEventListener(
+                            'input',
+                            function() {
+
+                                unsavedChanges = true;
+
+
+                                if (indicator) {
+
+                                    indicator.classList.add(
+                                        'show'
+                                    );
+
+                                }
+
+                            }
+                        );
+
+
+                        form.addEventListener(
+                            'change',
+                            function() {
+
+                                unsavedChanges = true;
+
+
+                                if (indicator) {
+
+                                    indicator.classList.add(
+                                        'show'
+                                    );
+
+                                }
+
+                            }
+                        );
+
+
+                        form.addEventListener(
+                            'submit',
+                            function() {
+
+                                allowNavigation = true;
+
+                                unsavedChanges = false;
+
+
+                                if (indicator) {
+
+                                    indicator.classList.remove(
+                                        'show'
+                                    );
+
+                                }
+
+                            }
+                        );
+
+                    }
+                );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Internal Link Protection
+                |--------------------------------------------------------------------------
+                */
+
+                document
+                    .querySelectorAll('a')
+                    .forEach(
+                        function(link) {
+
+                            link.addEventListener(
+                                'click',
+                                function(event) {
+
+                                    if (
+                                        !unsavedChanges ||
+                                        allowNavigation
+                                    ) {
+
+                                        return;
+
+                                    }
+
+
+                                    const href =
+                                        link.getAttribute('href');
+
+
+                                    if (
+                                        !href ||
+                                        href === '#' ||
+                                        href.startsWith(
+                                            'javascript:'
+                                        )
+                                    ) {
+
+                                        return;
+
+                                    }
+
+
+                                    event.preventDefault();
+
+
+                                    Swal.fire({
+
+                                        title:
+                                            'Unsaved changes',
+
+                                        text:
+                                            'You have unsaved changes. Are you sure you want to leave this page?',
+
+                                        icon:
+                                            'warning',
+
+                                        showCancelButton:
+                                            true,
+
+                                        confirmButtonText:
+                                            'Leave page',
+
+                                        cancelButtonText:
+                                            'Stay'
+
+                                    }).then(
+                                        function(result) {
+
+                                            if (
+                                                result.isConfirmed
+                                            ) {
+
+                                                allowNavigation =
+                                                    true;
+
+                                                unsavedChanges =
+                                                    false;
+
+                                                window.location.href =
+                                                    href;
+
+                                            }
+
+                                        }
+                                    );
+
+                                }
+                            );
+
+                        }
+                    );
+
+            }
+        );
 
 
         /*
         |--------------------------------------------------------------------------
-        | SweetAlert Confirmation
+        | Browser Before Unload
         |--------------------------------------------------------------------------
         */
 
-        const result = await Swal.fire({
+        window.addEventListener(
+            'beforeunload',
+            function(event) {
 
-            icon: 'warning',
+                if (
+                    unsavedChanges &&
+                    !allowNavigation
+                ) {
 
-            title: 'Unsaved Changes',
+                    event.preventDefault();
 
-            html: `
-                <p class="mb-1">
-                    You have unsaved changes in this form.
-                </p>
+                    event.returnValue = '';
 
-                <strong>
-                    If you leave now, your changes will be lost.
-                </strong>
-            `,
+                }
 
-            showCancelButton: true,
-
-            confirmButtonText: 'Discard Changes',
-
-            cancelButtonText: 'Stay on Page',
-
-            confirmButtonColor: '#dc3545',
-
-            cancelButtonColor: '#6c757d',
-
-            reverseButtons: true,
-
-            allowOutsideClick: false
-
-        });
+            }
+        );
 
 
         /*
         |--------------------------------------------------------------------------
-        | Discard Changes
+        | Prevent Spinner on AJAX Forms
         |--------------------------------------------------------------------------
         */
 
-        if (result.isConfirmed) {
+        document.addEventListener(
+            'DOMContentLoaded',
+            function() {
 
-            allowNavigation = true;
+                document
+                    .querySelectorAll(
+                        'form.no-spinner'
+                    )
+                    .forEach(
+                        function(form) {
 
-            markFormAsClean();
+                            form.addEventListener(
+                                'submit',
+                                function(event) {
 
-            window.location.href = link.href;
+                                    event.stopPropagation();
 
-        }
+                                }
+                            );
 
-    });
+                        }
+                    );
 
-});
+            }
+        );
 
-</script>
+    </script>
 
 </body>
 
